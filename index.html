@@ -72,6 +72,22 @@ li {
   margin-bottom: 5px;
 }
 
+.status-on-time,
+.status-late {
+  color: white;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.status-on-time {
+  background-color: green;
+}
+
+.status-late {
+  background-color: red;
+}
+
     </style>
   </head>
   <body onload="initAutocomplete()">
@@ -159,7 +175,8 @@ var explanationText = "<h3>Explanation of the Calculation</h3>" +
     "<li>Total time for required off-duty periods: " + (required10HourOffDutyPeriods * 10).toFixed(2) + " hours</li>" +
     "<li>Estimated arrival time: " + estimatedArrivalTime.toLocaleString() + "</li>" +
     "<li>Estimated distance: " + estimatedDistance + "</li>" +
-    "<li>Delivery status: " + onTimeStatus + "</li>" +
+    "<li>Delivery status: <span class='status-" + onTimeStatus.toLowerCase() + "'>" + onTimeStatus + "</span></li>" +
+
   "</ul>";
 
 explanationResult.innerHTML = explanationText;
