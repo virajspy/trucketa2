@@ -101,7 +101,7 @@ li {
       <input type="text" id="destination-location" name="destination-location" autocomplete="off">
       <div id="destination-location-autocomplete"></div>
       <br><br>
-      <label for="remaining-hos">Remaining Hours of Service:</label>
+      <label for="remaining-hos">Remaining Driving Hours:</label>
       <input type="text" id="remaining-hos" name="remaining-hos"><br><br>
       <label for="delivery-time">Delivery Appointment Time:</label>
       <input type="datetime-local" id="delivery-time" name="delivery-time"><br><br>
@@ -164,7 +164,7 @@ function calculateETA() {
       // Display an explanation of the calculation to the user
            var explanationResult = document.getElementById("explanation-result");
 var explanationText = "<h3>Explanation of the Calculation</h3>" +
-  "<p>To calculate the ETA, we used the remaining hours of service and estimated travel time from Google Maps. We also took into account the driver's required 30-minute breaks after every 8 hours of driving time and the 10-hour off-duty periods to gain additional driving hours after the current HoS are depleted.</p>" +
+  "<p>To calculate the ETA, we used the remaining driving time and estimated travel time from Google Maps. We also took into account the driver's required 30-minute breaks after every 8 hours of driving time and the 10-hour off-duty periods to gain additional driving hours after the current HoS are depleted.</p>" +
   "<h4>Detailed Breakdown</h4>" +
   "<ul>" +
     "<li>Google Maps estimated travel time: " + Math.floor(estimatedTravelTimeHours) + " hours " + Math.round((estimatedTravelTimeHours % 1) * 60) + " minutes</li>" +
@@ -172,7 +172,7 @@ var explanationText = "<h3>Explanation of the Calculation</h3>" +
     "<li>Number of required 30-minute breaks: " + required30MinBreaks + "</li>" +
     "<li>Total time for required breaks: " + (required30MinBreaks * 0.5).toFixed(2) + " hours</li>" +
     "<li>Number of required 10-hour off-duty periods: " + required10HourOffDutyPeriods + "</li>" +
-    "<li>Total time for required off-duty periods: " + (required10HourOffDutyPeriods * 10).toFixed(2) + " hours</li>" +
+    "<li>Total time for required 10 hr breaks: " + (required10HourOffDutyPeriods * 10).toFixed(2) + " hours</li>" +
     "<li>Estimated arrival time: " + estimatedArrivalTime.toLocaleString() + "</li>" +
     "<li>Estimated distance: " + estimatedDistance + "</li>" +
     "<li>Delivery status: <span class='status-" + onTimeStatus.toLowerCase() + "'>" + onTimeStatus + "</span></li>" +
