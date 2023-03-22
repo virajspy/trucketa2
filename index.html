@@ -92,6 +92,7 @@ li {
   </head>
   <body onload="initAutocomplete()">
     <h1>Truck Driver ETA Calculator</h1>
+<div id="local-time"></div>
     <form>
       <label for="driver-location">Driver Location:</label>
       <input type="text" id="driver-location" name="driver-location" autocomplete="off">
@@ -112,6 +113,23 @@ li {
     <div id="explanation-result"></div>
     <div id="distance-result"></div>
     <script>
+
+// Add the updateLocalTime function here
+function updateLocalTime() {
+  var localTimeElement = document.getElementById("local-time");
+  var currentTime = new Date();
+  localTimeElement.innerHTML = "Your Local Time: " + currentTime.toLocaleString();
+}
+
+// Modify the window.onload function here
+window.onload = function() {
+  initAutocomplete();
+  updateLocalTime();
+  setInterval(updateLocalTime, 1000);
+};
+
+// Your existing functions (initAutocomplete, calculateETA, etc.) go here
+
 function calculateETA() {
   // Get the user inputs
   var driverLocation = document.getElementById("driver-location").value;
