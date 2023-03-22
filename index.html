@@ -102,8 +102,8 @@ li {
       <input type="text" id="destination-location" name="destination-location" autocomplete="off">
       <div id="destination-location-autocomplete"></div>
       <br><br>
-      <label for="remaining-hos">Remaining Driving Hours:</label>
-      <input type="text" id="remaining-hos" name="remaining-hos"><br><br>
+      <label for="remaining-hos">Remaining Drive Hours:</label>
+     <input type="text" id="remaining-hos" name="remaining-hos" pattern="([0-9]|10):[0-5][0-9]" title="Please enter a time in the format HH:mm (maximum 10:59)" maxlength="5" placeholder="HH:mm"><br><br>
       <label for="delivery-time">Delivery Appointment Time:</label>
       <input type="datetime-local" id="delivery-time" name="delivery-time"><br><br>
       <input type="button" value="Calculate ETA" onclick="calculateETA()">
@@ -134,7 +134,10 @@ function calculateETA() {
   // Get the user inputs
   var driverLocation = document.getElementById("driver-location").value;
   var destinationLocation = document.getElementById("destination-location").value;
-  var remainingHOS = parseFloat(document.getElementById("remaining-hos").value);
+  var remainingHOSInput = document.getElementById("remaining-hos").value;
+  var hours = parseInt(remainingHOSInput.split(':')[0]);
+  var minutes = parseInt(remainingHOSInput.split(':')[1]);
+  var remainingHOS = hours + (minutes / 60);
   var deliveryTimeString = document.getElementById("delivery-time").value;
   var deliveryTime = new Date(deliveryTimeString);
 
