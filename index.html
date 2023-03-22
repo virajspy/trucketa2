@@ -103,10 +103,11 @@ li {
       <div id="destination-location-autocomplete"></div>
       <br><br>
       <label for="remaining-hos">Remaining Drive Hours:</label>
-     <input type="text" id="remaining-hos" name="remaining-hos" pattern="([0-9]|10):[0-5][0-9]" title="Please enter a time in the format HH:mm (maximum 10:59)" maxlength="5" placeholder="HH:mm"><br><br>
-      <label for="delivery-time">Delivery Appointment Time:</label>
+<input type="text" id="remaining-hos" name="remaining-hos" pattern="^([0-9]|0[0-9]|10):[0-5][0-9]$" oninput="validateRemainingHOS(true)" title="Please enter time in the format HH:mm (maximum 10:59)">
+
+<div id="remaining-hos-error" style="color: red;"></div>
       <input type="datetime-local" id="delivery-time" name="delivery-time"><br><br>
-      <input type="button" value="Calculate ETA" onclick="calculateETA()">
+      <input type="button" value="Calculate ETA" onclick="calculateETA()" id="calculate-eta-button">
     </form>
     <div id="eta-result"></div>
     <div id="breaks-result"></div>
@@ -126,7 +127,44 @@ window.onload = function() {
   initAutocomplete();
   updateLocalTime();
   setInterval(updateLocalTime, 1000);
+  validateRemainingHOS();
 };
+
+
+function validateRemainingHOS(inputModified) {
+  var remainingHOSInput = document.getElementById("remaining-hos");
+  var calculateEtaButton = document.getElementById("calculate-eta-button");
+  var remainingHosError = document.getElementById("remaining-hos-error");
+  var timePattern = /^([0-9]|0[0-9]|10):[0-5][0-9]$/;
+
+  if (!timePattern.test(remainingHOSInput.value)) {
+    remainingHOSInput.setCustomValidity("Invalid format. Please enter time in the format HH:mm (maximum 10:59).");
+    calculateEtaButton.disabled = true;
+    if (inputModified) {
+      remainingHosError.innerHTML = "Invalid format. Please enter time in the format HH:mm (maximum 10:59).";
+    }
+    return;
+  }
+
+  var inputParts = remainingHOSInput.value.split(':');
+  var hours = parseInt(inputParts[0]);
+  var minutes = parseInt(inputParts[1]);
+
+  if (hours > 10 || minutes > 59) {
+    remainingHOSInput.setCustomValidity("Invalid value. Maximum allowed is 10:59.");
+    calculateEtaButton.disabled = true;
+    if (inputModified) {
+      remainingHosError.innerHTML = "Invalid value. Maximum allowed is 10:59.";
+    }
+  } else {
+    remainingHOSInput.setCustomValidity("");
+    calculateEtaButton.disabled = false;
+    remainingHosError.innerHTML = "";
+  }
+}
+
+
+
 
 // Your existing functions (initAutocomplete, calculateETA, etc.) go here
 
