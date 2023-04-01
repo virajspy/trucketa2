@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -186,10 +187,14 @@ function calculateETA() {
     origin: driverLocation,
     destination: destinationLocation,
     travelMode: 'DRIVING'
+    drivingOptions: {
+    departureTime: new Date(), // Current time
+    trafficModel: 'best_guess'
+  }
   };
   directionsService.route(request, function (response, status) {
     if (status == 'OK') {
-      var estimatedTravelTimeSeconds = response.routes[0].legs[0].duration.value;
+      var estimatedTravelTimeSeconds = response.routes[0].legs[0].duration_in_traffic.value;
       var estimatedTravelTimeHours = estimatedTravelTimeSeconds / 3600;
       var estimatedDistance = response.routes[0].legs[0].distance.text;
 
