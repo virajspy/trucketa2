@@ -42,9 +42,17 @@ function calculateETA() {
   const shiftRestartTime = document.getElementById("shift-restart").value;
 
   if (onBreak) {
-    const shiftRestart = new Date(shiftRestartTime);
-    const now = new Date();
-    remainingHOS = (shiftRestart - now) / 1000 / 60 / 60 + DRIVING_LIMIT;
+  const shiftRestart = new Date(shiftRestartTime);
+  const timeUntilShiftRestart = (shiftRestart - now) / 1000 / 60 / 60; // in hours
+  const waitingTime = Math.max(0, timeUntilShiftRestart);
+
+  // Check if the estimated travel time is greater than 10 hours and 30 minutes
+  if (travelTime > 10.5) {
+    // If yes, add an additional 10-hour break to the ETA calculation
+    eta = new Date(shiftRestart.getTime() + (waitingTime + drivingTimeAccumulated + breakTimeNeeded + 10) * 60 * 60 * 1000);
+  } else {
+    eta = new Date(shiftRestart.getTime() + (waitingTime + drivingTimeAccumulated + breakTimeNeeded) * 60 * 60 * 1000);
+  }
   } else {
     remainingHOS = parseFloat(document.getElementById("remaining-hos").value);
   }
