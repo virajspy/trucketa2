@@ -180,8 +180,3 @@ const isOnBreak = onBreakRadio.checked;
             alert("An error occurred while calculating the ETA. Please try again.");
         });
 });
-
-// Autocomplete for origin and destination inputs
-const autocompleteOrigin = new google.maps.places.Autocomplete(originInput);
-const autocompleteDestination = new google.maps.places.Autocomplete(destinationInput);
-}
