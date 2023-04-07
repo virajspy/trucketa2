@@ -1,6 +1,7 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function() {
   initAutocomplete();
-}
+});
+
 window.onload = function() {
   initAutocomplete();
 };
