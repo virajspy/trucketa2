@@ -38,7 +38,7 @@ function calculateETA(event) {
   }
 
   const apiKey = 'YOUR_API_KEY';
-  const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(driverLocation)}&destination=${encodeURIComponent(destination)}&key=${apiKey}`;
+ const apiUrl = https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(driverLocation)}&destination=${encodeURIComponent(destination)}&key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14;
 
   fetch(apiUrl)
     .then(response => response.json())
