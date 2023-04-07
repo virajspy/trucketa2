@@ -40,6 +40,7 @@ function calculateETA() {
   const onBreak = document.getElementById("on-break").checked;
   let remainingHOS;
   const shiftRestartTime = document.getElementById("shift-restart").value;
+  const now = new Date();
 
   if (onBreak) {
   const shiftRestart = new Date(shiftRestartTime);
@@ -59,7 +60,6 @@ function calculateETA() {
 
   const deliveryTimeString = document.getElementById("delivery-time").value;
   const deliveryTime = new Date(deliveryTimeString);
-  const now = new Date();
   const timeUntilDelivery = (deliveryTime - now) / 1000 / 60 / 60; // in hours
 
   const directionsService = new google.maps.DirectionsService();
