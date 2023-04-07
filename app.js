@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
   initAutocomplete();
 });
-
-function initAutocomplete() {
+window.onload = function() {
+  initAutocomplete();
+};
   const driverLocationInput = document.getElementById("driver-location");
   const driverLocationAutocomplete = new google.maps.places.Autocomplete(driverLocationInput);
 
