@@ -1,36 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Truck Driver ETA Calculator</title>
-	<link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-	<div class="form-container">
-		<h1>Truck Driver ETA Calculator</h1>
-		<form>
-			<label for="origin-input">Origin:</label>
-			<input id="origin-input" type="text" placeholder="Enter origin">
-
-			<label for="destination-input">Destination:</label>
-			<input id="destination-input" type="text" placeholder="Enter destination">
-
-			<label for="remaining-hours-input">Remaining driving hours:</label>
-			<input id="remaining-hours-input" type="text" placeholder="Enter remaining driving hours">
-
-			<label for="appointment-time-input">Appointment time:</label>
-			<input id="appointment-time-input" type="time" placeholder="Enter appointment time">
-
-			<button id="submit-button" type="submit">Calculate ETA</button>
-		</form>
-
-		<div id="eta-container">
-			<h2>ETA:</h2>
-			<p id="eta-value"></p>
-			<h2>Late or On Time:</h2>
-			<p id="late-or-on-time-value"></p>
-		</div>
-	</div>
-	
-	<script src="script.js"></script>
-</body>
+  <head>
+    <title>Truck Driver ETA Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14&libraries=places"></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <h1>Truck Driver ETA Calculator</h1>
+    <form>
+      <!-- Form contents -->
+    </form>
+    <div id="results"></div>
+  </body>
 </html>
