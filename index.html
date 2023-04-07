@@ -1,193 +1,36 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Truck Driver ETA Calculator</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+	<title>Truck Driver ETA Calculator</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<div class="form-container">
+		<h1>Truck Driver ETA Calculator</h1>
+		<form>
+			<label for="origin-input">Origin:</label>
+			<input id="origin-input" type="text" placeholder="Enter origin">
 
-      h1 {
-        text-align: center;
-      }
+			<label for="destination-input">Destination:</label>
+			<input id="destination-input" type="text" placeholder="Enter destination">
 
-      form {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-      }
+			<label for="remaining-hours-input">Remaining driving hours:</label>
+			<input id="remaining-hours-input" type="text" placeholder="Enter remaining driving hours">
 
-      label {
-        display: block;
-        margin-bottom: 10px;
-        font-weight: bold;
-      }
+			<label for="appointment-time-input">Appointment time:</label>
+			<input id="appointment-time-input" type="time" placeholder="Enter appointment time">
 
-      input[type="text"],
-      input[type="datetime-local"] {
-        display: block;
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 16px;
-        margin-bottom: 20px;
-        box-sizing: border-box;
-      }
+			<button id="submit-button" type="submit">Calculate ETA</button>
+		</form>
 
-      input[type="button"] {
-        background-color: #4CAF50;
-        color: white;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-
-      input[type="button"]:hover {
-        background-color: #3e8e41;
-      }
-
-      #results {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-weight: bold;
-      }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14&libraries=places"></script>
-  </head>
-  <body>
-     <h1>Truck Driver ETA Calculator</h1>
-  <form>
-    <label for="driver-location">Driver Location:</label>
-    <input type="text" id="driver-location" name="driver-location" autocomplete="off">
-    <br>
-    <label for="destination-location">Destination Location:</label>
-    <input type="text" id="destination-location" name="destination-location" autocomplete="off">
-    <br>
-    <label for="on-break">Driver on 10-hour break:</label>
-    <input type="checkbox" id="on-break" name="on-break" onchange="toggleBreakInputs()">
-    <br>
-    <div id="remaining-hos-input">
-      <label for="remaining-hos">Remaining Hours of Service:</label>
-      <input type="text" id="remaining-hos" name="remaining-hos">
-      <br>
-    </div>
-    <div id="shift-restart-input" style="display: none;">
-      <label for="shift-restart">Shift Restart Time:</label>
-      <input type="datetime-local" id="shift-restart" name="shift-restart">
-      <br>
-    </div>
-    <label for="delivery-time">Appointment:</label>
-    <input type="datetime-local" id="delivery-time" name="delivery-time">
-    <br>
-    <input type="button" value="Calculate ETA" onclick="calculateETA()">
-  </form>
-  <div id="results"></div>
-<script>
-
-
-      function initAutocomplete() {
-        const driverLocationInput = document.getElementById("driver-location");
-        const driverLocationAutocomplete = new google.maps.places.Autocomplete(driverLocationInput);
-
-        const destinationLocationInput = document.getElementById("destination-location");
-        const destinationLocationAutocomplete = new google.maps.places.Autocomplete(destinationLocationInput);
-      }
-
-
-function toggleBreakInputs() {
-      const onBreak = document.getElementById("on-break").checked;
-      const remainingHosInput = document.getElementById("remaining-hos-input");
-      const shiftRestartInput = document.getElementById("shift-restart-input");
-
-      if (onBreak) {
-        remainingHosInput.style.display = "none";
-        shiftRestartInput.style.display = "block";
-      } else {
-        remainingHosInput.style.display = "block";
-        shiftRestartInput.style.display = "none";
-      }
-    }
-
-function formatTime(hoursDecimal) {
-  const hours = Math.floor(hoursDecimal);
-  const minutes = Math.floor((hoursDecimal - hours) * 60);
-  return `${hours}h ${minutes}m`;
-}
-
-
-function calculateETA() {
-        const DRIVING_LIMIT = 11;
-        const ON_DUTY_LIMIT = 14;
-
-        const driverLocation = document.getElementById("driver-location").value;
-        const destinationLocation = document.getElementById("destination-location").value;
-        const onBreak = document.getElementById("on-break").checked;
-        let remainingHOS;
-        const shiftRestartTime = document.getElementById("shift-restart").value;
-
-        if (onBreak) {
-          const shiftRestart = new Date(shiftRestartTime);
-          const now = new Date();
-          remainingHOS = (shiftRestart - now) / 1000 / 60 / 60 + 11;
-        } else {
-          remainingHOS = parseFloat(document.getElementById("remaining-hos").value);
-        }
-
-        const deliveryTimeString = document.getElementById("delivery-time").value;
-        const deliveryTime = new Date(deliveryTimeString);
-        const now = new Date();
-        const timeUntilDelivery = (deliveryTime - now) / 1000 / 60 / 60; // in hours
-
-        const directionsService = new google.maps.DirectionsService();
-        const request = {
-          origin: driverLocation,
-          destination: destinationLocation,
-          travelMode: "DRIVING",
-        };
-
-        
-  directionsService.route(request, (response, status) => {
-    if (status === "OK") {
-      const route = response.routes[0].legs[0];
-      const travelTime = route.duration.value / 60 / 60; // in hours
-      const formattedTravelTime = formatTime(travelTime);
-      let eta;
-
-      if (onBreak) {
-        const timeUntilShiftRestart = (new Date(shiftRestartTime) - now) / 1000 / 60 / 60;
-        eta = new Date(now.getTime() + (timeUntilShiftRestart + travelTime) * 60 * 60 * 1000);
-      } else {
-        eta = new Date(now.getTime() + travelTime * 60 * 60 * 1000);
-      }
-
-      const etaString = eta.toLocaleString();
-
-      const canReachOnTime = eta <= deliveryTime;
-
-      const resultsDiv = document.getElementById("results");
-      if (canReachOnTime) {
-        resultsDiv.innerHTML = `The driver can reach the destination on time! Estimated travel time: ${formattedTravelTime}. ETA: ${etaString}`;
-      } else {
-        resultsDiv.innerHTML = `The driver cannot reach the destination on time. Estimated travel time: ${formattedTravelTime}. ETA: ${etaString}`;
-      }
-    } else {
-      alert("Error calculating directions: " + status);
-    }
-  });
-}
-
-
-  initAutocomplete();
-</script>
+		<div id="eta-container">
+			<h2>ETA:</h2>
+			<p id="eta-value"></p>
+			<h2>Late or On Time:</h2>
+			<p id="late-or-on-time-value"></p>
+		</div>
+	</div>
+	
+	<script src="script.js"></script>
 </body>
 </html>
