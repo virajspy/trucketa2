@@ -1,15 +1,14 @@
-document.addEventListener("DOMContentLoaded", function() {
-  initAutocomplete();
-});
-
-window.onload = function() {
-  initAutocomplete();
-};
+function initAutocomplete() {
   const driverLocationInput = document.getElementById("driver-location");
   const driverLocationAutocomplete = new google.maps.places.Autocomplete(driverLocationInput);
 
   const destinationLocationInput = document.getElementById("destination-location");
   const destinationLocationAutocomplete = new google.maps.places.Autocomplete(destinationLocationInput);
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  initAutocomplete();
+});
 
 function toggleBreakInputs() {
   const onBreak = document.getElementById("on-break").checked;
