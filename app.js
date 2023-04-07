@@ -9,7 +9,6 @@ window.onload = function() {
 
   const destinationLocationInput = document.getElementById("destination-location");
   const destinationLocationAutocomplete = new google.maps.places.Autocomplete(destinationLocationInput);
-}
 
 function toggleBreakInputs() {
   const onBreak = document.getElementById("on-break").checked;
