@@ -2,272 +2,192 @@
 <html>
   <head>
     <title>Truck Driver ETA Calculator</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14&libraries=places"></script>
-<style>
+    <style>
       body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 20px;
+        padding: 0;
       }
 
       h1 {
         text-align: center;
-        margin-bottom: 30px;
       }
 
       form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-width: 500px;
+        max-width: 600px;
         margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="datetime-local"] {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
       }
 
       input[type="button"] {
-        width: 100%;
         background-color: #4CAF50;
         color: white;
-        padding: 10px;
+        padding: 10px 20px;
         border: none;
-        cursor: pointer;
+        border-radius: 5px;
         font-size: 16px;
+        cursor: pointer;
       }
 
       input[type="button"]:hover {
-        background-color: #45a049;
+        background-color: #3e8e41;
       }
 
-      .results {
-        margin-top: 30px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
+      #results {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-weight: bold;
       }
-
-      .result {
-        padding: 10px;
-        background-color: #f1f1f1;
-        border: 1px solid #ddd;
-      }
-
-h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-h4 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-li {
-  margin-bottom: 5px;
-}
-
-.status-on-time,
-.status-late {
-  color: white;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 4px;
-}
-
-.status-on-time {
-  background-color: green;
-}
-
-.status-late {
-  background-color: red;
-}
-
     </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14&libraries=places"></script>
   </head>
-  <body onload="initAutocomplete()">
-    <h1>Truck Driver ETA Calculator</h1>
-<div id="local-time"></div>
-    <form>
-      <label for="driver-location">Driver Location:</label>
-      <input type="text" id="driver-location" name="driver-location" autocomplete="off">
-      <div id="driver-location-autocomplete"></div>
-      <br><br>
-      <label for="destination-location">Destination Location:</label>
-      <input type="text" id="destination-location" name="destination-location" autocomplete="off">
-      <div id="destination-location-autocomplete"></div>
-      <br><br>
-      <label for="remaining-hos">Remaining Drive Hours:</label>
-<input type="text" id="remaining-hos" name="remaining-hos" pattern="^([0-9]|0[0-9]|10):[0-5][0-9]$" oninput="validateRemainingHOS(true)" title="Please enter time in the format HH:mm (maximum 10:59)">
+  <body>
+     <h1>Truck Driver ETA Calculator</h1>
+  <form>
+    <label for="driver-location">Driver Location:</label>
+    <input type="text" id="driver-location" name="driver-location" autocomplete="off">
+    <br>
+    <label for="destination-location">Destination Location:</label>
+    <input type="text" id="destination-location" name="destination-location" autocomplete="off">
+    <br>
+    <label for="on-break">Driver on 10-hour break:</label>
+    <input type="checkbox" id="on-break" name="on-break" onchange="toggleBreakInputs()">
+    <br>
+    <div id="remaining-hos-input">
+      <label for="remaining-hos">Remaining Hours of Service:</label>
+      <input type="text" id="remaining-hos" name="remaining-hos">
+      <br>
+    </div>
+    <div id="shift-restart-input" style="display: none;">
+      <label for="shift-restart">Shift Restart Time:</label>
+      <input type="datetime-local" id="shift-restart" name="shift-restart">
+      <br>
+    </div>
+    <label for="delivery-time">Appointment:</label>
+    <input type="datetime-local" id="delivery-time" name="delivery-time">
+    <br>
+    <input type="button" value="Calculate ETA" onclick="calculateETA()">
+  </form>
+  <div id="results"></div>
+<script>
 
-<div id="remaining-hos-error" style="color: red;"></div>
-      <label for="datetime-local">Delivery Appointment Time</label>
-      <input type="datetime-local" id="delivery-time" name="delivery-time"><br><br>
-      <input type="button" value="Calculate ETA" onclick="calculateETA()" id="calculate-eta-button">
-    </form>
-    <div id="eta-result"></div>
-    <div id="breaks-result"></div>
-    <div id="explanation-result"></div>
-    <div id="distance-result"></div>
-    <script>
 
-// Add the updateLocalTime function here
-function updateLocalTime() {
-  var localTimeElement = document.getElementById("local-time");
-  var currentTime = new Date();
-  localTimeElement.innerHTML = "Your Local Time: " + currentTime.toLocaleString();
+      function initAutocomplete() {
+        const driverLocationInput = document.getElementById("driver-location");
+        const driverLocationAutocomplete = new google.maps.places.Autocomplete(driverLocationInput);
+
+        const destinationLocationInput = document.getElementById("destination-location");
+        const destinationLocationAutocomplete = new google.maps.places.Autocomplete(destinationLocationInput);
+      }
+
+
+function toggleBreakInputs() {
+      const onBreak = document.getElementById("on-break").checked;
+      const remainingHosInput = document.getElementById("remaining-hos-input");
+      const shiftRestartInput = document.getElementById("shift-restart-input");
+
+      if (onBreak) {
+        remainingHosInput.style.display = "none";
+        shiftRestartInput.style.display = "block";
+      } else {
+        remainingHosInput.style.display = "block";
+        shiftRestartInput.style.display = "none";
+      }
+    }
+
+function formatTime(hoursDecimal) {
+  const hours = Math.floor(hoursDecimal);
+  const minutes = Math.floor((hoursDecimal - hours) * 60);
+  return `${hours}h ${minutes}m`;
 }
 
-// Modify the window.onload function here
-window.onload = function() {
-  initAutocomplete();
-  updateLocalTime();
-  setInterval(updateLocalTime, 1000);
-  validateRemainingHOS();
-};
-
-
-function validateRemainingHOS(inputModified) {
-  var remainingHOSInput = document.getElementById("remaining-hos");
-  var calculateEtaButton = document.getElementById("calculate-eta-button");
-  var remainingHosError = document.getElementById("remaining-hos-error");
-  var timePattern = /^([0-9]|0[0-9]|10):[0-5][0-9]$/;
-
-  if (!timePattern.test(remainingHOSInput.value)) {
-    remainingHOSInput.setCustomValidity("Invalid format. Please enter time in the format HH:mm (maximum 10:59).");
-    calculateEtaButton.disabled = true;
-    if (inputModified) {
-      remainingHosError.innerHTML = "Invalid format. Please enter time in the format HH:mm (maximum 10:59).";
-    }
-    return;
-  }
-
-  var inputParts = remainingHOSInput.value.split(':');
-  var hours = parseInt(inputParts[0]);
-  var minutes = parseInt(inputParts[1]);
-
-  if (hours > 10 || minutes > 59) {
-    remainingHOSInput.setCustomValidity("Invalid value. Maximum allowed is 10:59.");
-    calculateEtaButton.disabled = true;
-    if (inputModified) {
-      remainingHosError.innerHTML = "Invalid value. Maximum allowed is 10:59.";
-    }
-  } else {
-    remainingHOSInput.setCustomValidity("");
-    calculateEtaButton.disabled = false;
-    remainingHosError.innerHTML = "";
-  }
-}
-
-
-
-
-// Your existing functions (initAutocomplete, calculateETA, etc.) go here
 
 function calculateETA() {
-  // Get the user inputs
-  var driverLocation = document.getElementById("driver-location").value;
-  var destinationLocation = document.getElementById("destination-location").value;
-  var remainingHOSInput = document.getElementById("remaining-hos").value;
-  var hours = parseInt(remainingHOSInput.split(':')[0]);
-  var minutes = parseInt(remainingHOSInput.split(':')[1]);
-  var remainingHOS = hours + (minutes / 60);
-  var deliveryTimeString = document.getElementById("delivery-time").value;
-  var deliveryTime = new Date(deliveryTimeString);
+        const DRIVING_LIMIT = 11;
+        const ON_DUTY_LIMIT = 14;
 
-  // Calculate the estimated travel time and distance from Google Maps API
-  var directionsService = new google.maps.DirectionsService();
-  var request = {
-    origin: driverLocation,
-    destination: destinationLocation,
-    travelMode: 'DRIVING'
-  };
-  directionsService.route(request, function (response, status) {
-    if (status == 'OK') {
-      var estimatedTravelTimeSeconds = response.routes[0].legs[0].duration.value;
-      var estimatedTravelTimeHours = estimatedTravelTimeSeconds / 3600;
-      var estimatedDistance = response.routes[0].legs[0].distance.text;
+        const driverLocation = document.getElementById("driver-location").value;
+        const destinationLocation = document.getElementById("destination-location").value;
+        const onBreak = document.getElementById("on-break").checked;
+        let remainingHOS;
+        const shiftRestartTime = document.getElementById("shift-restart").value;
 
-      // Calculate the number of required 30-minute breaks and 10-hour off-duty periods
-      var required30MinBreaks = Math.floor(estimatedTravelTimeHours / 8);
-      var drivingTimeWithBreaks = estimatedTravelTimeHours + (required30MinBreaks * 0.5);
+        if (onBreak) {
+          const shiftRestart = new Date(shiftRestartTime);
+          const now = new Date();
+          remainingHOS = (shiftRestart - now) / 1000 / 60 / 60 + 11;
+        } else {
+          remainingHOS = parseFloat(document.getElementById("remaining-hos").value);
+        }
 
-      var required10HourOffDutyPeriods = 0;
+        const deliveryTimeString = document.getElementById("delivery-time").value;
+        const deliveryTime = new Date(deliveryTimeString);
+        const now = new Date();
+        const timeUntilDelivery = (deliveryTime - now) / 1000 / 60 / 60; // in hours
 
-      // Check if the driver can reach the destination within the remaining HoS
-      if (remainingHOS >= drivingTimeWithBreaks) {
-        var estimatedArrivalTime = new Date(Date.now() + (drivingTimeWithBreaks * 3600 * 1000));
+        const directionsService = new google.maps.DirectionsService();
+        const request = {
+          origin: driverLocation,
+          destination: destinationLocation,
+          travelMode: "DRIVING",
+        };
+
+        
+  directionsService.route(request, (response, status) => {
+    if (status === "OK") {
+      const route = response.routes[0].legs[0];
+      const travelTime = route.duration.value / 60 / 60; // in hours
+      const formattedTravelTime = formatTime(travelTime);
+      let eta;
+
+      if (onBreak) {
+        const timeUntilShiftRestart = (new Date(shiftRestartTime) - now) / 1000 / 60 / 60;
+        eta = new Date(now.getTime() + (timeUntilShiftRestart + travelTime) * 60 * 60 * 1000);
       } else {
-        // Calculate required 10-hour off-duty periods to get additional driving hours
-        var additionalHoursNeeded = drivingTimeWithBreaks - remainingHOS;
-        required10HourOffDutyPeriods = Math.ceil(additionalHoursNeeded / 11);
-        var totalTimeWithOffDutyPeriods = drivingTimeWithBreaks + (required10HourOffDutyPeriods * 10);
-
-        var estimatedArrivalTime = new Date(Date.now() + (totalTimeWithOffDutyPeriods * 3600 * 1000));
+        eta = new Date(now.getTime() + travelTime * 60 * 60 * 1000);
       }
 
-      var onTimeStatus = estimatedArrivalTime <= deliveryTime ? "On time" : "Late";
+      const etaString = eta.toLocaleString();
 
-      // Display the ETA, breaks, and distance results to the user
-      var etaResult = document.getElementById("eta-result");
-      etaResult.innerHTML = "Estimated Arrival Time: " + estimatedArrivalTime.toLocaleString();
-      var breaksResult = document.getElementById("breaks-result");
-      breaksResult.innerHTML = "Number of 30-Minute Breaks: " + required30MinBreaks;
-      var distanceResult = document.getElementById("distance-result");
-      //distanceResult.innerHTML = "Estimated Distance: " + estimatedDistance;
+      const canReachOnTime = eta <= deliveryTime;
 
-      // Display an explanation of the calculation to the user
-           var explanationResult = document.getElementById("explanation-result");
-var explanationText = "<h3>Explanation of the Calculation</h3>" +
-  "<p>To calculate the ETA, we used the remaining driving time and estimated travel time from Google Maps. We also took into account the driver's required 30-minute breaks after every 8 hours of driving time and the 10-hour off-duty periods to gain additional driving hours after the current HoS are depleted.</p>" +
-  "<h4>Detailed Breakdown</h4>" +
-  "<ul>" +
-    "<li>Google Maps estimated travel time: " + Math.floor(estimatedTravelTimeHours) + " hours " + Math.round((estimatedTravelTimeHours % 1) * 60) + " minutes</li>" +
-    "<li>Adjusted travel time (including breaks and driving limit): " + Math.floor(totalTimeWithOffDutyPeriods) + " hours " + Math.round((totalTimeWithOffDutyPeriods % 1) * 60) + " minutes</li>" +
-    "<li>Number of required 30-minute breaks: " + required30MinBreaks + "</li>" +
-    "<li>Total time for required breaks: " + (required30MinBreaks * 0.5).toFixed(2) + " hours</li>" +
-    "<li>Number of required 10-hour off-duty periods: " + required10HourOffDutyPeriods + "</li>" +
-    "<li>Total time for required 10 hr breaks: " + (required10HourOffDutyPeriods * 10).toFixed(2) + " hours</li>" +
-    "<li>Estimated arrival time: " + estimatedArrivalTime.toLocaleString() + "</li>" +
-    "<li>Estimated distance: " + estimatedDistance + "</li>" +
-    "<li>Delivery status: <span class='status-" + onTimeStatus.toLowerCase() + "'>" + onTimeStatus + "</span></li>" +
-
-  "</ul>";
-
-explanationResult.innerHTML = explanationText;
-
-
+      const resultsDiv = document.getElementById("results");
+      if (canReachOnTime) {
+        resultsDiv.innerHTML = `The driver can reach the destination on time! Estimated travel time: ${formattedTravelTime}. ETA: ${etaString}`;
+      } else {
+        resultsDiv.innerHTML = `The driver cannot reach the destination on time. Estimated travel time: ${formattedTravelTime}. ETA: ${etaString}`;
+      }
     } else {
-      alert('Directions request failed due to ' + status);
+      alert("Error calculating directions: " + status);
     }
   });
 }
 
 
-
-
-      function initAutocomplete() {
-        // Initialize the driver location autocomplete
-        var driverLocationInput = document.getElementById('driver-location');
-        var driverLocationAutocomplete = new google.maps.places.Autocomplete(driverLocationInput);
-driverLocationAutocomplete.addListener('place_changed', function() {
-var place = driverLocationAutocomplete.getPlace();
-console.log(place);
-});
-
-    // Initialize the destination location autocomplete
-    var destinationLocationInput = document.getElementById('destination-location');
-    var destinationLocationAutocomplete = new google.maps.places.Autocomplete(destinationLocationInput);
-    destinationLocationAutocomplete.addListener('place_changed', function() {
-      var place = destinationLocationAutocomplete.getPlace();
-      console.log(place);
-    });
-  }
+  initAutocomplete();
 </script>
 </body>
 </html>
