@@ -4,12 +4,34 @@
     <title>Truck Driver ETA Calculator</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVX4kyoQJOXHImKNf0VIC3BR-I1UDDm14&libraries=places"></script>
-    <script src="app.js" defer></script>
+    <script src="app.js"></script>
   </head>
   <body>
     <h1>Truck Driver ETA Calculator</h1>
     <form>
-      <!-- Form contents -->
+      <label for="driver-location">Driver Location:</label>
+      <input type="text" id="driver-location" name="driver-location" autocomplete="off">
+      <br>
+      <label for="destination-location">Destination Location:</label>
+      <input type="text" id="destination-location" name="destination-location" autocomplete="off">
+      <br>
+      <label for="on-break">Driver on 10-hour break:</label>
+      <input type="checkbox" id="on-break" name="on-break" onchange="toggleBreakInputs()">
+      <br>
+      <div id="remaining-hos-input">
+        <label for="remaining-hos">Remaining Hours of Service:</label>
+        <input type="text" id="remaining-hos" name="remaining-hos">
+        <br>
+      </div>
+      <div id="shift-restart-input" style="display: none;">
+        <label for="shift-restart">Shift Restart Time:</label>
+        <input type="datetime-local" id="shift-restart" name="shift-restart">
+        <br>
+      </div>
+      <label for="delivery-time">Appointment:</label>
+      <input type="datetime-local" id="delivery-time" name="delivery-time">
+      <br>
+      <input type="button" value="Calculate ETA" onclick="calculateETA()">
     </form>
     <div id="results"></div>
   </body>
